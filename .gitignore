@@ -12,3 +12,25 @@
 
 # MyJarbis
 .myjarbis/context/codebase.txt
+
+# Node / monorepo
+node_modules/
+dist/
+coverage/
+.turbo/
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
+.DS_Store
+.expo/
+dist-e2e/
+test-results/
+playwright-report/
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!terraform.tfvars.example

@@ -1,0 +1,10 @@
+pnpm-lock.yaml
+.myjarbis/
+.claude/
+.claude-plugin/
+docs/design/abrigo-design-preview.html
+**/dist/
+**/coverage/
+dist-e2e
+test-results
+playwright-report
