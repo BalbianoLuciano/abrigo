@@ -10,21 +10,21 @@ Abrigo permite **pedir que alguien te escuche, sin dar tu nombre**, y conecta es
 
 ## Usuarios
 
-| Rol | Descripción | Cuenta |
-|---|---|---|
-| Persona que pide ayuda | Adulto (18+) en Argentina, en situación de salud mental o de violencia | No. Sesión anónima ligada al dispositivo |
-| Ayudante | Profesional matriculado (psicología, psiquiatría, trabajo social, acompañamiento terapéutico) o voluntario/a de una organización de ayuda | Sí. Email + contraseña + 2FA obligatorio. Aprobación manual |
-| Admin | Fundador (por ahora). Aprueba ayudantes, modera, ve métricas | Sí. 2FA obligatorio |
+| Rol                    | Descripción                                                                                                                               | Cuenta                                                      |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| Persona que pide ayuda | Adulto (18+) en Argentina, en situación de salud mental o de violencia                                                                    | No. Sesión anónima ligada al dispositivo                    |
+| Ayudante               | Profesional matriculado (psicología, psiquiatría, trabajo social, acompañamiento terapéutico) o voluntario/a de una organización de ayuda | Sí. Email + contraseña + 2FA obligatorio. Aprobación manual |
+| Admin                  | Fundador (por ahora). Aprueba ayudantes, modera, ve métricas                                                                              | Sí. 2FA obligatorio                                         |
 
 ## Dos caminos
 
-| | Salud mental | Violencia |
-|---|---|---|
-| Situaciones | Depresión, ansiedad, ideación suicida, soledad | Violencia de género, familiar, sexual |
-| Líneas oficiales destacadas | 135 / (011) 5275-1135 · 911 | 144 · 137 · 911 |
-| Preguntas extra | ¿Estás en peligro ahora mismo? | ¿Estás en peligro ahora? · ¿Tenés un momento seguro para escribir? · Preferencia de género de quien escucha |
-| Ayudantes que reciben el aviso | Especialidad salud mental | Especialidad violencia |
-| Riesgos propios | Riesgo de vida inmediato | El agresor puede ver el dispositivo |
+|                                | Salud mental                                   | Violencia                                                                                                   |
+| ------------------------------ | ---------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| Situaciones                    | Depresión, ansiedad, ideación suicida, soledad | Violencia de género, familiar, sexual                                                                       |
+| Líneas oficiales destacadas    | 135 / (011) 5275-1135 · 911                    | 144 · 137 · 911                                                                                             |
+| Preguntas extra                | ¿Estás en peligro ahora mismo?                 | ¿Estás en peligro ahora? · ¿Tenés un momento seguro para escribir? · Preferencia de género de quien escucha |
+| Ayudantes que reciben el aviso | Especialidad salud mental                      | Especialidad violencia                                                                                      |
+| Riesgos propios                | Riesgo de vida inmediato                       | El agresor puede ver el dispositivo                                                                         |
 
 ## Dentro del alcance
 
@@ -53,26 +53,26 @@ Abrigo permite **pedir que alguien te escuche, sin dar tu nombre**, y conecta es
 
 ## Marco legal (Argentina) — a validar con un abogado
 
-| Norma | Impacto |
-|---|---|
-| Ley 25.326 de Protección de Datos Personales | Los datos de salud son sensibles. Consentimiento expreso, finalidad, minimización, seguridad. Inscripción de la base en el Registro Nacional de Bases de Datos (AAIP). Condiciones para transferir datos fuera del país |
-| Ley 26.657 de Salud Mental | Enfoque de derechos; Abrigo no realiza prácticas de salud, solo acompañamiento y derivación |
-| Ley 27.130 de Prevención del Suicidio | Marco de referencia para protocolos y derivación |
-| Ley 26.485 de Protección Integral a las Mujeres | Marco de referencia para el camino de violencia |
-| Ejercicio profesional | Los profesionales actúan bajo su propia matrícula y responsabilidad; Abrigo lo deja explícito en sus términos |
+| Norma                                           | Impacto                                                                                                                                                                                                                 |
+| ----------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Ley 25.326 de Protección de Datos Personales    | Los datos de salud son sensibles. Consentimiento expreso, finalidad, minimización, seguridad. Inscripción de la base en el Registro Nacional de Bases de Datos (AAIP). Condiciones para transferir datos fuera del país |
+| Ley 26.657 de Salud Mental                      | Enfoque de derechos; Abrigo no realiza prácticas de salud, solo acompañamiento y derivación                                                                                                                             |
+| Ley 27.130 de Prevención del Suicidio           | Marco de referencia para protocolos y derivación                                                                                                                                                                        |
+| Ley 26.485 de Protección Integral a las Mujeres | Marco de referencia para el camino de violencia                                                                                                                                                                         |
+| Ejercicio profesional                           | Los profesionales actúan bajo su propia matrícula y responsabilidad; Abrigo lo deja explícito en sus términos                                                                                                           |
 
 Documentos necesarios antes de lanzar: términos y condiciones, política de privacidad en lenguaje simple, código de conducta para ayudantes, protocolo de derivación ante riesgo.
 
 ## Riesgos principales
 
-| Riesgo | Mitigación |
-|---|---|
-| Nadie responde a tiempo | Líneas oficiales siempre visibles; aviso progresivo; nunca prometer tiempos |
+| Riesgo                                            | Mitigación                                                                                       |
+| ------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| Nadie responde a tiempo                           | Líneas oficiales siempre visibles; aviso progresivo; nunca prometer tiempos                      |
 | Un agresor o depredador se registra como ayudante | Verificación manual con matrícula/organización, 2FA, auditoría, reportes, ubicación nunca exacta |
-| El agresor ve el dispositivo de la víctima | Salida rápida, nombre e ícono discretos, sin historial visible, borrado de datos locales |
-| Alertas falsas o trolls | Límite por dispositivo/IP, captcha invisible, moderación |
-| Filtración de datos | Cifrado de mensajes en la aplicación, borrado automático, mínimo de datos |
-| Desgaste de ayudantes | Límite de conversaciones simultáneas, pausas, protocolo de derivación |
+| El agresor ve el dispositivo de la víctima        | Salida rápida, nombre e ícono discretos, sin historial visible, borrado de datos locales         |
+| Alertas falsas o trolls                           | Límite por dispositivo/IP, captcha invisible, moderación                                         |
+| Filtración de datos                               | Cifrado de mensajes en la aplicación, borrado automático, mínimo de datos                        |
+| Desgaste de ayudantes                             | Límite de conversaciones simultáneas, pausas, protocolo de derivación                            |
 
 ## Métricas de éxito
 

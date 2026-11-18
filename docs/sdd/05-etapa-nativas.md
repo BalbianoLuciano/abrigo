@@ -4,13 +4,13 @@
 
 ## Qué cambia respecto de la PWA
 
-| Tema | PWA | Nativo |
-|---|---|---|
-| Push | Web Push (en iOS solo con la PWA instalada, iOS 16.4+) | FCM (Android) y APNs (iOS) vía Expo Notifications |
-| Mapas | `@vis.gl/react-google-maps` | `react-native-maps` (proveedor Google) |
-| Almacenamiento seguro | IndexedDB | SecureStore / Keychain |
-| Salida rápida | Redirige a un sitio neutro | Cierra la app y vuelve al inicio del sistema; pantalla de app recientes protegida |
-| Nombre e ícono discretos | Nombre del manifiesto configurable | Íconos alternativos (iOS) / activity-alias (Android), a evaluar |
+| Tema                     | PWA                                                    | Nativo                                                                            |
+| ------------------------ | ------------------------------------------------------ | --------------------------------------------------------------------------------- |
+| Push                     | Web Push (en iOS solo con la PWA instalada, iOS 16.4+) | FCM (Android) y APNs (iOS) vía Expo Notifications                                 |
+| Mapas                    | `@vis.gl/react-google-maps`                            | `react-native-maps` (proveedor Google)                                            |
+| Almacenamiento seguro    | IndexedDB                                              | SecureStore / Keychain                                                            |
+| Salida rápida            | Redirige a un sitio neutro                             | Cierra la app y vuelve al inicio del sistema; pantalla de app recientes protegida |
+| Nombre e ícono discretos | Nombre del manifiesto configurable                     | Íconos alternativos (iOS) / activity-alias (Android), a evaluar                   |
 
 ## Consideraciones de tiendas
 

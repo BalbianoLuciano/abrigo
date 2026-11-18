@@ -15,7 +15,7 @@
 └──────────────┬───────────────┘      │ Socket.IO adapter,    │
                │ jobs                 │ rate limiting)        │
 ┌──────────────▼───────────────┐      └───────────────────────┘
-│ apps/worker (NestJS standalone)│
+│ apps/api · worker.ts (NestJS standalone)│
 │  escalado, timeouts, fan-out, │──► Web Push (VAPID) · FCM/APNs · Email · Telegram
 │  borrado automático           │
 └──────────────────────────────┘
@@ -27,8 +27,8 @@
 abrigo/
 ├── apps/
 │   ├── mobile/          # Expo Router, RN Web, PWA (service worker propio)
-│   ├── api/             # NestJS (HTTP + WebSocket)
-│   └── worker/          # NestJS standalone, consumidores BullMQ
+│   ├── api/             # NestJS (HTTP + WebSocket) · src/worker.ts: consumidores BullMQ
+│   ├── e2e/             # Playwright contra la API real y la PWA exportada
 ├── packages/
 │   ├── shared/          # esquemas zod, tipos, constantes (líneas de crisis, estados)
 │   ├── ui/              # tokens de DESIGN.md + componentes base
@@ -42,30 +42,32 @@ Herramientas: pnpm workspaces + Turborepo, TypeScript estricto, ESLint + Prettie
 
 ## Stack
 
-| Capa | Tecnología |
-|---|---|
-| Frontend | Expo SDK (Expo Router), React Native Web, TanStack Query, Zustand |
-| Mapas | `@vis.gl/react-google-maps` en web, `react-native-maps` en nativo (archivos `.web.tsx` / `.native.tsx`) |
-| API | NestJS sobre Fastify, validación con zod, OpenAPI generado |
-| Tiempo real | Socket.IO + Redis adapter |
-| Datos | PostgreSQL 16 + PostGIS, Drizzle ORM, migraciones versionadas |
-| Colas | Redis + BullMQ |
-| Auth | Better Auth (sesión anónima, email+contraseña, TOTP, roles) |
-| Notificaciones | Web Push (VAPID) → FCM/APNs en nativo · Email (Resend o AWS SES) · Telegram Bot API |
-| Antiabuso | Cloudflare Turnstile (captcha invisible) + rate limiting en Redis |
-| Cifrado | Cifrado de mensajes en la aplicación (AES-256-GCM, claves envueltas con Cloud KMS) |
-| Observabilidad | Sentry, OpenTelemetry, logs estructurados (sin contenido de mensajes ni datos personales) |
-| Infra | GCP `southamerica-east1`: Cloud Run, Cloud SQL, Memorystore, KMS, Secret Manager · Terraform |
-| CI/CD | GitHub Actions: lint, typecheck, tests, migraciones, deploy |
+| Capa           | Tecnología                                                                                              |
+| -------------- | ------------------------------------------------------------------------------------------------------- |
+| Frontend       | Expo SDK (Expo Router), React Native Web, TanStack Query, Zustand                                       |
+| Mapas          | `@vis.gl/react-google-maps` en web, `react-native-maps` en nativo (archivos `.web.tsx` / `.native.tsx`) |
+| API            | NestJS sobre Fastify, validación con zod, OpenAPI generado                                              |
+| Tiempo real    | Socket.IO + Redis adapter                                                                               |
+| Datos          | PostgreSQL 16 + PostGIS, Drizzle ORM, migraciones versionadas                                           |
+| Colas          | Redis + BullMQ                                                                                          |
+| Auth           | Better Auth (sesión anónima, email+contraseña, TOTP, roles)                                             |
+| Notificaciones | Web Push (VAPID) → FCM/APNs en nativo · Email (Resend o AWS SES) · Telegram Bot API                     |
+| Antiabuso      | Cloudflare Turnstile (captcha invisible) + rate limiting en Redis                                       |
+| Cifrado        | Cifrado de mensajes en la aplicación (AES-256-GCM, claves envueltas con Cloud KMS)                      |
+| Observabilidad | Sentry, OpenTelemetry, logs estructurados (sin contenido de mensajes ni datos personales)               |
+| Infra          | GCP `southamerica-east1`: Cloud Run, Cloud SQL, Memorystore, KMS, Secret Manager · Terraform            |
+| CI/CD          | GitHub Actions: lint, typecheck, tests, migraciones, deploy                                             |
 
 ## Identidad
 
 ### Persona que pide ayuda (anónima)
-- Al abrir la app se crea una **sesión anónima** ligada al dispositivo (Better Auth, plugin anonymous). El token se guarda en almacenamiento seguro (IndexedDB en web, SecureStore en nativo).
+
+- Al pedir ayuda se crea una **sesión anónima** ligada al dispositivo (implementación propia: token aleatorio de 256 bits; en la base solo queda su SHA-256; rota cada 24 h con 5 min de gracia para el anterior). El token se guarda en almacenamiento seguro (IndexedDB en web, SecureStore en nativo). Better Auth se usa solo para ayudantes y admin.
 - No se guarda nombre, teléfono ni email. La IP se usa solo para limitar abusos y se guarda como hash con sal rotativa, con vida máxima de 24 h.
 - "Borrar todo" elimina la sesión local y marca los datos del servidor para borrado inmediato.
 
 ### Ayudantes y admin
+
 - Email + contraseña (Argon2id) + **TOTP obligatorio**.
 - Roles: `helper_pending`, `helper`, `helper_suspended`, `admin`.
 - Sesiones cortas con refresh; revocación inmediata al suspender.
@@ -132,26 +134,26 @@ stateDiagram-v2
 
 ## Seguridad
 
-| Amenaza | Control |
-|---|---|
-| Lectura de mensajes por filtración de la base | Cifrado en la aplicación con claves en KMS; rotación de claves |
-| Ayudante malicioso | Verificación manual, 2FA, límite de conversaciones, auditoría, reporte con un toque, suspensión inmediata |
-| Spam de alertas | Turnstile, máximo 3 alertas por sesión cada 24 h, límite por hash de IP |
-| Robo de sesión anónima | Token rotativo, ligado al dispositivo, vida limitada |
-| Ver el dispositivo de la víctima | Salida rápida, sin historial visible, nombre/ícono discretos, botón "borrar todo" |
-| Logs con datos sensibles | Lista explícita de campos permitidos en logs; nunca contenido de mensajes |
-| Acceso del personal a la infraestructura | IAM mínimo, accesos a producción auditados, secretos en Secret Manager |
+| Amenaza                                       | Control                                                                                                   |
+| --------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| Lectura de mensajes por filtración de la base | Cifrado en la aplicación con claves en KMS; rotación de claves                                            |
+| Ayudante malicioso                            | Verificación manual, 2FA, límite de conversaciones, auditoría, reporte con un toque, suspensión inmediata |
+| Spam de alertas                               | Turnstile, máximo 3 alertas por sesión cada 24 h, límite por hash de IP                                   |
+| Robo de sesión anónima                        | Token rotativo, ligado al dispositivo, vida limitada                                                      |
+| Ver el dispositivo de la víctima              | Salida rápida, sin historial visible, nombre/ícono discretos, botón "borrar todo"                         |
+| Logs con datos sensibles                      | Lista explícita de campos permitidos en logs; nunca contenido de mensajes                                 |
+| Acceso del personal a la infraestructura      | IAM mínimo, accesos a producción auditados, secretos en Secret Manager                                    |
 
 ## Retención de datos
 
-| Dato | Retención |
-|---|---|
-| Mensajes | 30 días después de cerrar la conversación, luego se borran |
-| Mensajes con reporte abierto | Hasta resolver el reporte (máx. 90 días) |
-| Alertas | Se anonimizan a los 30 días (se mantienen solo métricas agregadas) |
-| Sesiones anónimas | Se borran a los 30 días sin actividad |
-| Hash de IP | 24 h |
-| Datos de ayudantes | Mientras la cuenta esté activa; 1 año después de la baja (auditoría) |
+| Dato                         | Retención                                                            |
+| ---------------------------- | -------------------------------------------------------------------- |
+| Mensajes                     | 30 días después de cerrar la conversación, luego se borran           |
+| Mensajes con reporte abierto | Hasta resolver el reporte (máx. 90 días)                             |
+| Alertas                      | Se anonimizan a los 30 días (se mantienen solo métricas agregadas)   |
+| Sesiones anónimas            | Se borran a los 30 días sin actividad                                |
+| Hash de IP                   | 24 h                                                                 |
+| Datos de ayudantes           | Mientras la cuenta esté activa; 1 año después de la baja (auditoría) |
 
 ## Requisitos no funcionales
 

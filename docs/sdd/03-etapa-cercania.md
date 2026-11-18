@@ -8,13 +8,13 @@ La conversación es por chat, pero un ayudante cercano conoce los recursos local
 
 ## Escalado progresivo
 
-| Nivel | Cuándo | A quién se avisa |
-|---|---|---|
-| 0 | Al crear la alerta | De guardia, misma especialidad, zona de cobertura que contiene la celda |
-| 1 | +3 min sin tomar | + radio de 50 km |
-| 2 | +6 min sin tomar | + toda la provincia |
-| 3 | +10 min sin tomar | + todo el país (ayudantes con `accepts_remote_anywhere`) |
-| 4 | +20 min sin tomar | Se le vuelve a mostrar a la persona: "Seguimos buscando. Mientras tanto, estas líneas atienden ahora" + aviso al admin |
+| Nivel | Cuándo             | A quién se avisa                                                                                                       |
+| ----- | ------------------ | ---------------------------------------------------------------------------------------------------------------------- |
+| 0     | Al crear la alerta | De guardia, misma especialidad, zona de cobertura que contiene la celda                                                |
+| 1     | +3 min sin tomar   | + radio de 50 km                                                                                                       |
+| 2     | +6 min sin tomar   | + toda la provincia                                                                                                    |
+| 3     | +10 min sin tomar  | + todo el país (ayudantes con `accepts_remote_anywhere`)                                                               |
+| 4     | +20 min sin tomar  | Se le vuelve a mostrar a la persona: "Seguimos buscando. Mientras tanto, estas líneas atienden ahora" + aviso al admin |
 
 - Con preferencia de género (camino violencia) se respeta en los niveles 0–2; en el nivel 3 se avisa a todos y se le explica a la persona.
 - Alertas con peligro indicado arrancan directamente en el nivel 1.
