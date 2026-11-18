@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="es-AR">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#F7F1E8" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#1B1815" media="(prefers-color-scheme: dark)" />
+    <meta name="description" content="Pedí que alguien te escuche, sin dar tu nombre." />
+    <!-- Sin indexar: una búsqueda en el historial no debe mostrar de qué se trata. -->
+    <meta name="robots" content="noindex" />
+    <meta name="referrer" content="no-referrer" />
+    <title>%WEB_TITLE%</title>
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="apple-touch-icon" href="/logo192.png" />
+    <style id="expo-reset">
+      html,
+      body {
+        height: 100%;
+        background: #f7f1e8;
+      }
+      @media (prefers-color-scheme: dark) {
+        html,
+        body {
+          background: #1b1815;
+        }
+      }
+      body {
+        overflow: hidden;
+      }
+      #root {
+        display: flex;
+        height: 100%;
+        flex: 1;
+      }
+    </style>
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", function () {
+          navigator.serviceWorker.register("/sw.js").catch(function () {});
+        });
+      }
+    </script>
+  </head>
+  <body>
+    <noscript>Abrigo necesita JavaScript. Si estás en peligro, llamá al 911.</noscript>
+    <div id="root"></div>
+  </body>
+</html>

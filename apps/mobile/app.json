@@ -1,0 +1,51 @@
+{
+  "expo": {
+    "name": "Abrigo",
+    "slug": "abrigo",
+    "scheme": "abrigo",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "backgroundColor": "#F7F1E8",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "ar.abrigo.app"
+    },
+    "android": {
+      "package": "ar.abrigo.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#F7F1E8",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "single",
+      "favicon": "./assets/favicon.png",
+      "name": "Abrigo",
+      "shortName": "Abrigo",
+      "themeColor": "#F7F1E8",
+      "backgroundColor": "#F7F1E8",
+      "lang": "es-AR"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-status-bar",
+      "expo-font",
+      "expo-secure-store",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Abrigo usa tu zona aproximada solo si vos querés, para encontrar a alguien cerca. Nunca guardamos tu ubicación exacta."
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
