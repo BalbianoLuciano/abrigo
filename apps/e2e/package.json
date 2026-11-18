@@ -1,0 +1,20 @@
+{
+  "name": "@abrigo/e2e",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "e2e": "playwright test",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint ."
+  },
+  "devDependencies": {
+    "@abrigo/db": "workspace:*",
+    "@playwright/test": "^1.65.1",
+    "@testcontainers/postgresql": "^12.2.1",
+    "@testcontainers/redis": "^12.2.1",
+    "@types/node": "^24.19.2",
+    "otplib": "^13.6.0",
+    "testcontainers": "^12.2.1"
+  }
+}
