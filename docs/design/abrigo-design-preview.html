@@ -1,0 +1,376 @@
+<title>Abrigo Design System</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700&family=Fraunces:opsz,wght,SOFT@9..144,300..600,0..100&display=swap">
+<style>
+/* Layout: papel cálido con volúmenes orgánicos (eco del HITO) detrás; una columna de lectura + teléfonos que muestran el flujo real */
+:root{
+  --canvas:#F7F1E8; --surface:#FFFDF9; --sunk:#EFE7DB; --hairline:#E3D9CC;
+  --ink:#2B2622; --ink-soft:#5A524B; --mute:#857B71;
+  --primary:#3F6B57; --primary-hover:#34594A; --on-primary:#FFFDF9; --primary-tint:#E1EBE3;
+  --embrace:#9A5537; --embrace-soft:#C98A6A;
+  --vol-sun:#EBC98F; --vol-leaf:#CCD8C2; --vol-skin:#EDD3C4; --vol-calm:#D9D3E8; --vol-air:#CFE1E5;
+  --urgent:#8A5A16; --urgent-bg:#F6E6C8;
+  --display:"Fraunces", Georgia, "Times New Roman", serif;
+  --body:"Atkinson Hyperlegible Next", "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --ease:cubic-bezier(0.22,1,0.36,1);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --canvas:#1B1815; --surface:#25211D; --sunk:#16130F; --hairline:#3A342D;
+  --ink:#F1E9DE; --ink-soft:#C9BEB1; --mute:#998E82;
+  --primary:#8FBBA3; --primary-hover:#A6CBB6; --on-primary:#14211B; --primary-tint:#2A3A32;
+  --embrace:#E2A182; --embrace-soft:#B9775A;
+  --vol-sun:#5E4A2A; --vol-leaf:#3A4637; --vol-skin:#56403A; --vol-calm:#3F3A50; --vol-air:#334548;
+  --urgent:#EBC27F; --urgent-bg:#3E321F; color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --canvas:#1B1815; --surface:#25211D; --sunk:#16130F; --hairline:#3A342D;
+  --ink:#F1E9DE; --ink-soft:#C9BEB1; --mute:#998E82;
+  --primary:#8FBBA3; --primary-hover:#A6CBB6; --on-primary:#14211B; --primary-tint:#2A3A32;
+  --embrace:#E2A182; --embrace-soft:#B9775A;
+  --vol-sun:#5E4A2A; --vol-leaf:#3A4637; --vol-skin:#56403A; --vol-calm:#3F3A50; --vol-air:#334548;
+  --urgent:#EBC27F; --urgent-bg:#3E321F; color-scheme:dark;}
+
+*{box-sizing:border-box}
+body{background:var(--canvas);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.6;overflow-x:hidden}
+.wrap{max-width:1080px;margin:0 auto;padding-left:max(16px, env(safe-area-inset-left,0px));padding-right:max(16px, env(safe-area-inset-right,0px));position:relative}
+h1,h2,h3{font-family:var(--display);font-variation-settings:"SOFT" 100;font-weight:400;text-wrap:balance;margin:0}
+h1{font-size:clamp(2.4rem,6vw,4.2rem);line-height:1.05;letter-spacing:-0.01em}
+h2{font-size:clamp(1.6rem,3.4vw,2.2rem);line-height:1.15}
+h3{font-size:1.25rem;line-height:1.25}
+p{margin:0}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);font-weight:700}
+section{padding-block:56px;display:grid;gap:28px}
+.lead{font-size:1.15rem;color:var(--ink-soft);max-width:60ch}
+:focus-visible{outline:3px solid var(--primary);outline-offset:3px;border-radius:8px}
+
+/* Volúmenes: formas orgánicas inclinadas */
+.volumes{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+.vol{position:absolute;border-radius:58% 42% 55% 45% / 48% 60% 40% 52%;opacity:.85}
+.hero{position:relative;padding-block:72px 48px;display:grid;gap:20px}
+.hero > *:not(.volumes){position:relative;z-index:1}
+.hero .lead{max-width:52ch}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{background:var(--surface);border:1px solid var(--hairline);border-radius:999px;padding:6px 14px;font-size:.88rem;color:var(--ink-soft)}
+
+/* Paleta */
+.swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.sw{background:var(--surface);border:1px solid var(--hairline);border-radius:16px;overflow:hidden;display:grid}
+.sw i{display:block;height:72px}
+.sw div{padding:10px 12px;display:grid;gap:2px}
+.sw b{font-size:.92rem}
+.sw span{font-size:.8rem;color:var(--mute);font-variant-numeric:tabular-nums}
+.group-label{font-weight:700;color:var(--ink-soft);font-size:.95rem}
+
+/* Tipografía */
+.type-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.type-card{background:var(--surface);border:1px solid var(--hairline);border-radius:24px;padding:24px;display:grid;gap:10px;min-width:0}
+.type-card .big{font-family:var(--display);font-variation-settings:"SOFT" 100;font-size:2.6rem;line-height:1.1}
+.type-card .bigb{font-size:1.5rem;line-height:1.35}
+.meta{font-size:.85rem;color:var(--mute)}
+
+/* Teléfonos */
+.phones{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:24px;align-items:start}
+.phone-col{display:grid;gap:12px;min-width:0}
+.phone{background:var(--canvas);border:1px solid var(--hairline);border-radius:36px;padding:18px 18px 22px;min-height:560px;display:flex;flex-direction:column;gap:16px;position:relative;overflow:hidden;box-shadow:0 1px 0 var(--hairline), 0 20px 40px -28px rgba(60,40,20,.35)}
+.phone > *{position:relative;z-index:1}
+.phone-top{display:flex;justify-content:space-between;align-items:center}
+.brand{font-family:var(--display);font-variation-settings:"SOFT" 100;font-size:1.15rem}
+.exit{background:var(--surface);border:1px solid var(--hairline);color:var(--ink);border-radius:999px;padding:8px 14px;font:700 .85rem var(--body);cursor:pointer;min-height:40px}
+.exit:hover{border-color:var(--ink-soft)}
+.caption{font-size:.9rem;color:var(--ink-soft)}
+.progress{height:6px;background:var(--sunk);border-radius:999px;overflow:hidden}
+.progress i{display:block;height:100%;width:60%;background:var(--primary);border-radius:999px}
+.q{font-family:var(--display);font-variation-settings:"SOFT" 100;font-size:1.65rem;line-height:1.2}
+.opts{display:grid;gap:10px}
+.opt{background:var(--surface);border:1.5px solid var(--hairline);border-radius:999px;padding:14px 18px;font:400 1rem var(--body);color:var(--ink);text-align:left;cursor:pointer;min-height:52px;transition:background .28s var(--ease),border-color .28s var(--ease)}
+.opt[aria-pressed="true"]{background:var(--primary-tint);border-color:var(--primary)}
+.crisis{background:var(--urgent-bg);border-radius:24px;padding:18px;display:grid;gap:10px}
+.crisis h4{margin:0;font-size:1rem;color:var(--urgent)}
+.line{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:.92rem}
+.line b{font-size:1.05rem;font-variant-numeric:tabular-nums;color:var(--ink)}
+.btn{background:var(--primary);color:var(--on-primary);border:0;border-radius:999px;min-height:56px;font:700 1.05rem var(--body);cursor:pointer;width:100%;transition:background .28s var(--ease)}
+.btn:hover{background:var(--primary-hover)}
+.spacer{flex:1}
+.soft-note{font-size:.85rem;color:var(--mute);text-align:center}
+
+/* Espera que respira */
+.breath-wrap{display:grid;place-items:center;flex:1;min-height:250px}
+.breath{width:190px;height:190px;border-radius:50%;background:var(--vol-leaf);display:grid;place-items:center;animation:breathe 8s var(--ease) infinite;box-shadow:0 0 0 18px color-mix(in srgb, var(--vol-leaf) 35%, transparent)}
+.breath span{font-family:var(--display);font-variation-settings:"SOFT" 100;font-size:1.1rem;color:var(--ink)}
+@keyframes breathe{0%,100%{transform:scale(.72)}50%{transform:scale(1)}}
+@media (prefers-reduced-motion: reduce){.breath{animation:none;transform:scale(.9)}.dots i{animation:none}}
+
+/* Chat */
+.helper-id{display:flex;gap:10px;align-items:center;background:var(--surface);border:1px solid var(--hairline);border-radius:999px;padding:6px 14px 6px 6px}
+.avatar{width:34px;height:34px;border-radius:50%;background:var(--vol-skin);display:grid;place-items:center;font-weight:700;color:var(--embrace);font-size:.9rem}
+.helper-id small{display:block;color:var(--embrace);font-size:.78rem;font-weight:700}
+.msgs{display:grid;gap:10px;flex:1;align-content:start}
+.bubble{max-width:84%;padding:11px 14px;font-size:.95rem;line-height:1.5}
+.bubble.them{background:var(--surface);border:1px solid var(--hairline);border-radius:22px 22px 22px 8px;justify-self:start}
+.bubble.me{background:var(--primary-tint);border-radius:22px 22px 8px 22px;justify-self:end}
+.dots{display:inline-flex;gap:5px;padding:14px 16px;background:var(--surface);border:1px solid var(--hairline);border-radius:22px 22px 22px 8px;justify-self:start}
+.dots i{width:7px;height:7px;border-radius:50%;background:var(--mute);animation:dot 2.4s var(--ease) infinite}
+.dots i:nth-child(2){animation-delay:.4s}.dots i:nth-child(3){animation-delay:.8s}
+@keyframes dot{0%,100%{opacity:.3}50%{opacity:1}}
+.composer{display:flex;gap:8px;background:var(--sunk);border-radius:28px;padding:6px 6px 6px 16px;align-items:center}
+.composer input{flex:1;min-width:0;border:0;background:transparent;font:1rem var(--body);color:var(--ink);min-height:44px}
+.composer input::placeholder{color:var(--mute)}
+.composer button{background:var(--primary);color:var(--on-primary);border:0;border-radius:999px;width:44px;height:44px;font-size:1.1rem;cursor:pointer}
+.help-link{font-size:.85rem;color:var(--ink-soft);text-align:center}
+.help-link u{text-decoration-color:var(--embrace);text-underline-offset:3px}
+
+/* Lado ayudante */
+.helper-panel{background:var(--surface);border:1px solid var(--hairline);border-radius:32px;overflow:hidden;display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)}
+.map{min-height:340px;position:relative;background:var(--sunk)}
+.map svg{position:absolute;inset:0;width:100%;height:100%}
+.alerts{padding:22px;display:grid;gap:14px;align-content:start}
+.acard{border:1px solid var(--hairline);border-radius:24px;padding:18px;display:grid;gap:10px;background:var(--canvas)}
+.acard .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.tag{border-radius:999px;padding:4px 12px;font-size:.8rem;font-weight:700}
+.tag.mh{background:var(--vol-calm);color:var(--ink)}
+.tag.vg{background:var(--vol-skin);color:var(--ink)}
+.tag.ur{background:var(--urgent-bg);color:var(--urgent)}
+.acard p{font-size:.92rem;color:var(--ink-soft)}
+.btn.sm{min-height:46px;font-size:.95rem}
+@media (max-width:760px){.helper-panel{grid-template-columns:1fr}}
+
+/* Principios */
+.table-wrap{overflow-x:auto;border:1px solid var(--hairline);border-radius:24px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:.95rem}
+th,td{text-align:left;padding:14px 18px;border-bottom:1px solid var(--hairline);vertical-align:top}
+th{font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
+tr:last-child td{border-bottom:0}
+td:first-child{font-weight:700;white-space:nowrap}
+
+.voice{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.voice > div{background:var(--surface);border:1px solid var(--hairline);border-radius:24px;padding:22px;display:grid;gap:10px;align-content:start}
+.voice ul{margin:0;padding-left:18px;display:grid;gap:6px}
+.yes h3{color:var(--primary)} .no h3{color:var(--embrace)}
+
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--canvas);padding:12px 18px;border-radius:999px;font-size:.92rem;max-width:calc(100% - 32px);z-index:20}
+footer{padding-block:40px 64px;color:var(--mute);font-size:.88rem;border-top:1px solid var(--hairline)}
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <div class="volumes" aria-hidden="true">
+      <div class="vol" style="width:340px;height:300px;background:var(--vol-sun);right:-60px;top:10px;transform:rotate(-8deg)"></div>
+      <div class="vol" style="width:220px;height:240px;background:var(--vol-calm);right:230px;top:150px;transform:rotate(6deg);opacity:.7"></div>
+      <div class="vol" style="width:180px;height:160px;background:var(--vol-leaf);right:120px;top:270px;transform:rotate(-3deg)"></div>
+    </div>
+    <p class="eyebrow">Sistema de diseño · v0.1</p>
+    <h1>Abrigo</h1>
+    <p class="lead">Una habitación tibia con la luz baja. El color abriga, nunca alarma. Papel cálido, volúmenes suaves encadenados como en el HITO de Querétaro, y reglas de diseño informado en trauma.</p>
+    <div class="chips">
+      <span class="chip">HITO · volúmenes inclinados</span>
+      <span class="chip">Oura · papel cálido</span>
+      <span class="chip">Chayn · 8 principios</span>
+      <span class="chip">WCAG AA mínimo</span>
+    </div>
+  </header>
+
+  <section aria-labelledby="flujo">
+    <div style="display:grid;gap:8px">
+      <p class="eyebrow">Quien pide ayuda</p>
+      <h2 id="flujo">Una pregunta por pantalla</h2>
+      <p class="lead">Sin cuenta, sin nombre. El botón de salida está siempre arriba a la derecha. Probá las opciones.</p>
+    </div>
+    <div class="phones">
+      <div class="phone-col">
+        <div class="phone">
+          <div class="phone-top"><span class="brand">Abrigo</span><button class="exit" type="button" data-exit>Salir</button></div>
+          <div class="progress" aria-label="Progreso"><i></i></div>
+          <p class="caption">Ya casi. No tenés que contar nada que no quieras.</p>
+          <p class="q">¿Estás en peligro ahora mismo?</p>
+          <div class="opts" role="group" aria-label="Respuesta">
+            <button class="opt" type="button" id="opt-yes" aria-pressed="true">Sí, ahora mismo</button>
+            <button class="opt" type="button" id="opt-unsure" aria-pressed="false">No sé</button>
+            <button class="opt" type="button" id="opt-no" aria-pressed="false">No, pero necesito hablar</button>
+          </div>
+          <div class="crisis" id="crisis">
+            <h4>Mientras buscamos a alguien, podés llamar ya</h4>
+            <div class="line"><span>Asistencia al Suicida</span><b>135</b></div>
+            <div class="line"><span>Violencia de género</span><b>144</b></div>
+            <div class="line"><span>Emergencias</span><b>911</b></div>
+          </div>
+          <div class="spacer"></div>
+          <button class="btn" type="button">Seguir</button>
+        </div>
+        <p class="caption">1 · Triage amable. Si hay peligro, las líneas oficiales aparecen antes de publicar la alerta.</p>
+      </div>
+
+      <div class="phone-col">
+        <div class="phone">
+          <div class="volumes" aria-hidden="true">
+            <div class="vol" style="width:220px;height:200px;background:var(--vol-air);left:-80px;bottom:-40px;transform:rotate(7deg);opacity:.7"></div>
+            <div class="vol" style="width:160px;height:150px;background:var(--vol-skin);right:-50px;top:70px;transform:rotate(-6deg);opacity:.7"></div>
+          </div>
+          <div class="phone-top"><span class="brand">Abrigo</span><button class="exit" type="button" data-exit>Salir</button></div>
+          <p class="q">Gracias por escribir. Acá estamos.</p>
+          <p class="caption">Estamos buscando a alguien para vos.</p>
+          <div class="breath-wrap"><div class="breath"><span>Respirá conmigo</span></div></div>
+          <p class="soft-note">Inhalá cuando el círculo crece, soltá cuando se achica.</p>
+        </div>
+        <p class="caption">2 · La espera que respira: un ciclo de 8 segundos convierte la espera en un ejercicio de calma.</p>
+      </div>
+
+      <div class="phone-col">
+        <div class="phone">
+          <div class="phone-top"><span class="brand">Abrigo</span><button class="exit" type="button" data-exit>Salir</button></div>
+          <div class="helper-id"><span class="avatar">L</span><span>Lucía<small>Psicóloga verificada</small></span></div>
+          <div class="msgs">
+            <div class="bubble them">Hola, soy Lucía. Estoy acá para escucharte, sin apuro. ¿Cómo estás en este momento?</div>
+            <div class="bubble me">no muy bien. no sé ni por dónde empezar</div>
+            <div class="bubble them">Está bien no saber. Podemos empezar por lo que sentís ahora, aunque sea una palabra.</div>
+            <div class="dots" aria-label="Lucía está escribiendo"><i></i><i></i><i></i></div>
+          </div>
+          <form class="composer" id="composer">
+            <label for="msg" class="sr" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Mensaje</label>
+            <input id="msg" placeholder="Escribí lo que quieras…" autocomplete="off">
+            <button type="submit" aria-label="Enviar">↑</button>
+          </form>
+          <p class="help-link"><u>Pedir otra persona</u> · <u>Líneas de ayuda</u></p>
+        </div>
+        <p class="caption">3 · Chat anónimo. Quien escucha muestra su rol verificado; vos siempre podés pedir a otra persona.</p>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="ayudantes">
+    <div style="display:grid;gap:8px">
+      <p class="eyebrow">Quien ayuda</p>
+      <h2 id="ayudantes">Zonas, nunca puntos</h2>
+      <p class="lead">El mapa del lado profesional muestra áreas difusas de al menos 2 km. Nadie puede saber dónde está exactamente la persona.</p>
+    </div>
+    <div class="helper-panel">
+      <div class="map" aria-label="Mapa de ejemplo con zonas difusas">
+        <svg viewBox="0 0 400 340" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <defs>
+            <radialGradient id="z"><stop offset="0" stop-color="var(--embrace-soft)" stop-opacity=".45"/><stop offset="1" stop-color="var(--embrace-soft)" stop-opacity="0"/></radialGradient>
+          </defs>
+          <rect width="400" height="340" fill="var(--sunk)"/>
+          <path d="M-10 250 C 80 230, 140 280, 240 250 S 380 200, 420 220 L 420 360 L -10 360 Z" fill="var(--vol-air)"/>
+          <g stroke="var(--hairline)" stroke-width="6" fill="none" stroke-linecap="round">
+            <path d="M0 80 L400 120"/><path d="M60 0 L120 340"/><path d="M0 180 L400 160"/><path d="M260 0 L300 340"/><path d="M170 0 L200 230"/>
+          </g>
+          <g stroke="var(--hairline)" stroke-width="2.5" fill="none">
+            <path d="M0 40 L400 60"/><path d="M340 0 L370 340"/><path d="M0 130 L400 140"/><path d="M20 0 L40 340"/>
+          </g>
+          <circle cx="150" cy="120" r="78" fill="url(#z)"/>
+          <circle cx="300" cy="200" r="64" fill="url(#z)"/>
+          <circle cx="90" cy="230" r="54" fill="url(#z)"/>
+        </svg>
+      </div>
+      <div class="alerts">
+        <div class="acard">
+          <div class="row"><span class="tag mh">Salud mental</span><span class="tag ur">Peligro indicado</span></div>
+          <h3>Zona Palermo · hace 3 min</h3>
+          <p>Ya se le mostraron las líneas de crisis. Prefiere chat. Español.</p>
+          <button class="btn sm" type="button">Tomar esta conversación</button>
+        </div>
+        <div class="acard">
+          <div class="row"><span class="tag vg">Violencia</span></div>
+          <h3>Zona Avellaneda · hace 9 min</h3>
+          <p>Prefiere que le escriba una mujer. Puede tener poco tiempo a solas.</p>
+          <button class="btn sm" type="button">Tomar esta conversación</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="color">
+    <div style="display:grid;gap:8px">
+      <p class="eyebrow">Fundamentos</p>
+      <h2 id="color">Color</h2>
+      <p class="lead">Una sola acción en salvia profunda. Los volúmenes viven en el fondo y nunca comunican estado. Sin rojo del lado de quien pide ayuda. Cambiá el tema del sistema para ver el modo noche.</p>
+    </div>
+    <p class="group-label">Base y acción</p>
+    <div class="swatches" id="sw-base"></div>
+    <p class="group-label">Volúmenes (HITO)</p>
+    <div class="swatches" id="sw-vol"></div>
+    <p class="group-label">Estados</p>
+    <div class="swatches" id="sw-state"></div>
+  </section>
+
+  <section aria-labelledby="tipo">
+    <h2 id="tipo">Tipografía</h2>
+    <div class="type-grid">
+      <div class="type-card">
+        <p class="eyebrow">Títulos y contención</p>
+        <p class="big">Acá estamos.</p>
+        <p class="meta">Fraunces, eje SOFT 100, peso 400. Solo para títulos y frases que abrazan.</p>
+      </div>
+      <div class="type-card">
+        <p class="eyebrow">Todo lo que se lee</p>
+        <p class="bigb">No tenés que contar nada que no quieras. Podés salir cuando quieras.</p>
+        <p class="meta">Atkinson Hyperlegible Next, 18px, interlineado 1.6. Hecha para leerse aun con ansiedad, poca luz o lágrimas.</p>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="voz">
+    <h2 id="voz">Voz</h2>
+    <div class="voice">
+      <div class="yes"><h3>Decimos</h3><ul><li>Gracias por escribir. Acá estamos.</li><li>¿Estás en peligro ahora mismo?</li><li>Estamos buscando a alguien para vos.</li><li>¿Querés compartir tu zona aproximada? Sirve para encontrar a alguien cerca.</li></ul></div>
+      <div class="no"><h3>No decimos</h3><ul><li>Alerta enviada correctamente.</li><li>Nivel de riesgo del 1 al 10.</li><li>Alguien te responde en 2 minutos.</li><li>Ánimo, todo pasa.</li></ul></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="principios">
+    <div style="display:grid;gap:8px">
+      <h2 id="principios">Diseño informado en trauma</h2>
+      <p class="lead">Los 8 principios de Chayn, traducidos a reglas de producto de Abrigo.</p>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Principio</th><th>En Abrigo</th></tr></thead>
+        <tbody>
+          <tr><td>Seguridad</td><td>Salida rápida, zonas difusas, sin historial visible, nombre e ícono discretos, líneas de crisis siempre a mano.</td></tr>
+          <tr><td>Agencia</td><td>Consentimiento por cada dato. Terminar o pedir otra persona en cualquier momento.</td></tr>
+          <tr><td>Equidad</td><td>AA/AAA, tipografía hiperlegible, celulares de gama baja y mala conexión.</td></tr>
+          <tr><td>Privacidad</td><td>Anonimato por defecto y borrado automático de conversaciones.</td></tr>
+          <tr><td>Rendición de cuentas</td><td>Qué pasa con tus datos, en palabras simples. Poder reportar a quien ayuda.</td></tr>
+          <tr><td>Pluralidad</td><td>Salud mental y violencia como caminos distintos. No asumir género ni vínculo con el agresor.</td></tr>
+          <tr><td>Compartir el poder</td><td>Co-diseñar y testear con sobrevivientes y profesionales antes de lanzar.</td></tr>
+          <tr><td>Esperanza</td><td>Lenguaje cálido, formas suaves, nunca imágenes tristes ni dramáticas.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer>Fuente de verdad: <code>docs/design/DESIGN.md</code> en el repo de Abrigo. Referencias: HITO (Sordo Madaleno Arquitectos), Oura DESIGN.md (awesome-design-md), principios de Chayn.</footer>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+const sw = {
+  "sw-base":[["canvas","Papel cálido","--canvas"],["surface","Superficie","--surface"],["ink","Tinta","--ink"],["primary","Refugio","--primary"],["primary-tint","Refugio suave","--primary-tint"],["embrace","Abrazo","--embrace"]],
+  "sw-vol":[["vol-sun","Sol","--vol-sun"],["vol-leaf","Hoja","--vol-leaf"],["vol-skin","Piel","--vol-skin"],["vol-calm","Calma","--vol-calm"],["vol-air","Aire","--vol-air"]],
+  "sw-state":[["urgent","Urgente (texto)","--urgent"],["urgent-bg","Urgente (fondo)","--urgent-bg"],["hairline","Línea","--hairline"]]
+};
+function paint(){
+  const cs = getComputedStyle(document.documentElement);
+  for (const id in sw){
+    const el = document.getElementById(id);
+    el.innerHTML = sw[id].map(([t,n,v]) => `<div class="sw"><i style="background:var(${v})"></i><div><b>${n}</b><span>${t} · ${cs.getPropertyValue(v).trim()}</span></div></div>`).join("");
+  }
+}
+paint();
+try { matchMedia("(prefers-color-scheme: dark)").addEventListener("change", paint); new MutationObserver(paint).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]}); } catch(e){}
+
+const opts = [...document.querySelectorAll(".opt")];
+const crisis = document.getElementById("crisis");
+opts.forEach(b => b.addEventListener("click", () => {
+  opts.forEach(o => o.setAttribute("aria-pressed", o === b ? "true" : "false"));
+  crisis.hidden = b.id === "opt-no";
+}));
+
+const toast = document.getElementById("toast");
+let tt;
+function say(msg){ toast.textContent = msg; toast.hidden = false; clearTimeout(tt); tt = setTimeout(() => toast.hidden = true, 3200); }
+document.querySelectorAll("[data-exit]").forEach(b => b.addEventListener("click", () => say("En la app real: te lleva a un sitio neutro y borra esta pantalla del historial.")));
+let escs = 0, escT;
+addEventListener("keydown", e => { if (e.key === "Escape"){ escs++; clearTimeout(escT); escT = setTimeout(() => escs = 0, 800); if (escs >= 2){ escs = 0; say("Esc dos veces: salida rápida."); } } });
+document.getElementById("composer").addEventListener("submit", e => { e.preventDefault(); const i = document.getElementById("msg"); if (i.value.trim()) { say("Mensaje de ejemplo: en el prototipo no se envía."); i.value = ""; } });
+</script>
