@@ -1,0 +1,5 @@
+project_id        = "abrigo-prod"
+app_domain        = "abrigo.ar"
+api_domain        = "api.abrigo.ar"
+image             = "southamerica-east1-docker.pkg.dev/abrigo-prod/abrigo/api:bootstrap"
+github_repository = "OWNER/abrigo"

@@ -1,0 +1,69 @@
+name: Deploy
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  REGION: southamerica-east1
+
+jobs:
+  deploy:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOYER_SA }}
+      - uses: google-github-actions/setup-gcloud@v2
+
+      - name: Imagen de API y worker
+        run: |
+          IMAGE="${{ vars.GCP_ARTIFACT_REGISTRY }}/api:${{ github.sha }}"
+          gcloud auth configure-docker "${REGION}-docker.pkg.dev" --quiet
+          docker build -t "$IMAGE" .
+          docker push "$IMAGE"
+          echo "IMAGE=$IMAGE" >> "$GITHUB_ENV"
+
+      - name: Migraciones (antes de servir la versión nueva)
+        run: |
+          gcloud run jobs update abrigo-migrate --region "$REGION" --image "$IMAGE"
+          gcloud run jobs execute abrigo-migrate --region "$REGION" --wait
+
+      - name: API y worker
+        run: |
+          gcloud run services update abrigo-api --region "$REGION" --image "$IMAGE"
+          gcloud run services update abrigo-worker --region "$REGION" --image "$IMAGE"
+
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - name: PWA
+        env:
+          EXPO_PUBLIC_API_URL: ${{ vars.PUBLIC_API_URL }}
+          EXPO_PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.TURNSTILE_SITE_KEY }}
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm turbo run build --filter=@abrigo/mobile
+          # Assets con hash: caché larga. index.html, sw.js y manifest: sin caché.
+          gcloud storage rsync apps/mobile/dist "gs://${{ vars.GCP_WEB_BUCKET }}" --recursive --delete-unmatched-destination-objects \
+            --cache-control="public, max-age=31536000, immutable"
+          for f in index.html sw.js manifest.json; do
+            gcloud storage objects update "gs://${{ vars.GCP_WEB_BUCKET }}/$f" --cache-control="no-cache"
+          done

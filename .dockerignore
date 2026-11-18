@@ -1,0 +1,12 @@
+**/node_modules
+**/dist
+**/dist-e2e
+**/.turbo
+**/.expo
+.git
+.myjarbis
+.claude
+.claude-plugin
+.env
+.env.*
+apps/e2e/test-results
