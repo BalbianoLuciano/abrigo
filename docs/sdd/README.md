@@ -7,7 +7,7 @@ Documento vivo. Cada etapa se itera por separado: se revisa, se ajusta y recién
 | 00  | [Visión y alcance](00-vision-y-alcance.md)                   | Borrador v0.1                                                |
 | 01  | [Arquitectura](01-arquitectura.md)                           | Borrador v0.1                                                |
 | 02  | [Etapa 1 — MVP](02-etapa-mvp.md)                             | Implementada (pendientes: legal y pruebas con especialistas) |
-| 03  | [Etapa 2 — Cercanía y escalado](03-etapa-cercania.md)        | Borrador v0.1                                                |
+| 03  | [Etapa 2 — Cercanía y escalado](03-etapa-cercania.md)        | Implementada (mapa nativo en etapa 4)                        |
 | 04  | [Etapa 3 — Moderación y admin](04-etapa-moderacion-admin.md) | Borrador v0.1                                                |
 | 05  | [Etapa 4 — Apps nativas](05-etapa-nativas.md)                | Borrador v0.1                                                |
 
@@ -28,6 +28,7 @@ Diseño visual y voz: [`docs/design/DESIGN.md`](../design/DESIGN.md).
 | 2026-11-18 | Sesión anónima propia (token rotativo, solo hash en la base); Better Auth solo para ayudantes/admin |
 | 2026-11-18 | El worker es un segundo entrypoint de `apps/api` (misma imagen, otro comando)                       |
 | 2026-11-18 | Token `mute` de DESIGN.md oscurecido a `#70675D` para cumplir AA                                    |
+| 2026-11-19 | Etapa 2: "No sé" arranca en nivel 1; en nivel 2, alertas con solo celda = 200 km a la redonda       |
 
 ## Pendientes
 

@@ -113,7 +113,7 @@
 | 1. Monorepo                  | ✅                      | raíz, `docker-compose.yml`, `.github/workflows/ci.yml`                                     |
 | 2. `packages/ui`             | ✅                      | tokens + botones, opciones, tarjeta de crisis, burbujas, salida rápida, espera que respira |
 | 3. `packages/db`             | ✅                      | esquema Drizzle, migraciones con PostGIS, auditoría inmutable                              |
-| 4–7. API                     | ✅                      | `apps/api` (25 tests con Postgres y Redis reales) + `apps/e2e` (3 E2E Playwright)                           |
+| 4–7. API                     | ✅                      | `apps/api` (25 tests con Postgres y Redis reales) + `apps/e2e` (3 E2E Playwright)          |
 | 8–10. App                    | ✅                      | `apps/mobile` (persona, ayudante, admin)                                                   |
 | 11. Infra                    | ✅ escrita, sin aplicar | `infra/terraform`, `Dockerfile`, `.github/workflows/deploy.yml`                            |
 | 12. Textos legales           | 📝 borrador             | `docs/legal/` — **requiere asesoría legal**                                                |
