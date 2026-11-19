@@ -50,6 +50,8 @@ export default function Waiting() {
   if (alert.status === "closed") return <Closed alert={alert} />;
 
   const lines = CRISIS_LINES_BY_PATH[alert.path];
+  const stillSearching = alert.escalationLevel >= 4;
+  const widenedGender = alert.helperGenderPref === "woman" && alert.escalationLevel >= 3;
   return (
     <Screen
       volumes
@@ -76,7 +78,20 @@ export default function Waiting() {
         <Text variant="body" color="inkSoft" accessibilityLiveRegion="polite">
           {t.waiting.body}
         </Text>
+        {widenedGender ? (
+          <Text variant="body" accessibilityLiveRegion="polite">
+            {t.waiting.widenedGender}
+          </Text>
+        ) : null}
       </Stack>
+      {stillSearching ? (
+        <Stack gap="sm">
+          <Text variant="body" style={{ fontWeight: "700" }} accessibilityLiveRegion="assertive">
+            {t.waiting.stillSearching}
+          </Text>
+          <CrisisLineCard lines={lines} />
+        </Stack>
+      ) : null}
       <View style={{ alignItems: "center", gap: 16, paddingVertical: 8 }}>
         <BreathingCircle />
         <Text variant="bodySm" color="inkSoft" style={{ textAlign: "center" }}>
@@ -96,7 +111,7 @@ export default function Waiting() {
           />
         )
       ) : null}
-      <CrisisLineCard title={t.waiting.meanwhile} lines={lines} />
+      {stillSearching ? null : <CrisisLineCard title={t.waiting.meanwhile} lines={lines} />}
     </Screen>
   );
 }

@@ -7,6 +7,8 @@ export interface PublicAlert {
   path: "mental_health" | "violence";
   status: "open" | "claimed" | "active" | "closed";
   dangerNow: "yes" | "unsure" | "no";
+  escalationLevel: number;
+  helperGenderPref: "woman" | "any" | null;
   createdAt: string;
   closeReason: string | null;
   conversationId: string | null;

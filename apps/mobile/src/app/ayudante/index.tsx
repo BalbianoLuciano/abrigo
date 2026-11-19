@@ -3,9 +3,11 @@ import { Button, Card, Field, Screen, Stack, Text, radius, spacing, useTheme } f
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, router } from "expo-router";
 import QRCode from "qrcode";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Image, View } from "react-native";
+import { AlertsMap } from "@/components/alerts-map";
 import { ApiError, request } from "@/lib/api";
+import type { Coverage } from "@/lib/helper-settings";
 import { enablePush, pushSupported } from "@/lib/push";
 import { getSocket } from "@/lib/socket";
 import {
@@ -277,6 +279,7 @@ interface OpenAlert {
   helperGenderPref: "woman" | "any" | null;
   regionCode: string | null;
   h3Cell: string | null;
+  escalationLevel: number;
   createdAt: string;
 }
 
@@ -297,7 +300,15 @@ function Dashboard({ me }: { me: StaffMe }) {
   const { colors } = useTheme();
   const [error, setError] = useState<string | null>(null);
   const [pushOn, setPushOn] = useState(false);
+  const [selected, setSelected] = useState<string | null>(null);
   const onCall = Boolean(me.isOnCall);
+  const select = useCallback((id: string) => setSelected(id), []);
+
+  const coverage = useQuery({
+    queryKey: ["helper-coverage"],
+    queryFn: () => request<Coverage>("GET", "/v1/helper/coverage", { auth: "staff" }),
+  });
+  const noZone = coverage.data && !coverage.data.circle && coverage.data.regionCodes.length === 0;
 
   const alerts = useQuery({
     queryKey: ["helper-alerts"],
@@ -370,6 +381,32 @@ function Dashboard({ me }: { me: StaffMe }) {
         label={onCall ? "Pausar mi guardia" : "Estoy de guardia"}
         onPress={toggleOnCall}
       />
+      <View style={{ flexDirection: "row", gap: spacing.sm, flexWrap: "wrap" }}>
+        <Button
+          variant="quiet"
+          block={false}
+          label="Tu zona"
+          onPress={() => router.push("/ayudante/zona")}
+        />
+        <Button
+          variant="quiet"
+          block={false}
+          label="Avisos"
+          onPress={() => router.push("/ayudante/avisos")}
+        />
+      </View>
+      {noZone ? (
+        <Card>
+          <Text variant="body">
+            Marcá tu zona para recibir primero los pedidos cercanos: conocés los recursos de ahí.
+          </Text>
+          <Button
+            variant="secondary"
+            label="Marcar mi zona"
+            onPress={() => router.push("/ayudante/zona")}
+          />
+        </Card>
+      ) : null}
       {error ? (
         <Text
           variant="body"
@@ -402,15 +439,25 @@ function Dashboard({ me }: { me: StaffMe }) {
         <Text variant="title">Pedidos abiertos</Text>
         {alerts.data?.alerts.length === 0 ? (
           <Text variant="body" color="inkSoft">
-            No hay pedidos abiertos de tu especialidad en este momento.
+            {onCall
+              ? "No hay pedidos abiertos para vos en este momento."
+              : "Ponete de guardia para ver los pedidos abiertos."}
           </Text>
+        ) : null}
+        {alerts.data?.alerts.length ? (
+          <AlertsMap
+            alerts={alerts.data.alerts}
+            coverage={coverage.data?.circle ?? null}
+            selectedId={selected}
+            onSelect={select}
+          />
         ) : null}
         {alerts.data?.alerts.map((a) => (
           <View
             key={a.id}
             style={{
-              backgroundColor: colors.surface,
-              borderColor: colors.hairline,
+              backgroundColor: a.id === selected ? colors.primaryTint : colors.surface,
+              borderColor: a.id === selected ? colors.primary : colors.hairline,
               borderWidth: 1,
               borderRadius: radius.lg,
               padding: spacing.lg,
@@ -434,6 +481,7 @@ function Dashboard({ me }: { me: StaffMe }) {
                   : ""}
               {a.safeTimeToWrite === "no" ? " · puede tener que irse pronto" : ""}
               {a.helperGenderPref === "woman" ? " · prefiere que le escriba una mujer" : ""}
+              {a.escalationLevel >= 3 ? " · lleva más de 10 minutos esperando" : ""}
             </Text>
             <Button label="Tomar esta conversación" onPress={() => claim(a.id)} />
           </View>

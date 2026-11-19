@@ -81,6 +81,10 @@ export const t = {
     closedNoResponse:
       "Esta vez no encontramos a alguien disponible. Lo sentimos mucho. Las líneas de ayuda atienden ahora, y podés volver a intentarlo.",
     retry: "Volver a pedir",
+    widenedGender:
+      "Todavía no encontramos a una mujer disponible, así que avisamos también a otras personas del equipo. Si te escribe alguien que no es mujer y preferís esperar, podés pedir otra persona.",
+    stillSearching:
+      "Seguimos buscando. Mientras tanto, estas líneas atienden ahora y no hace falta que dejes de esperar acá.",
   },
   chat: {
     composer: "Escribí tu mensaje",
