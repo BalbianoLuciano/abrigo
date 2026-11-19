@@ -26,6 +26,8 @@ export async function createApp(env: Env): Promise<NestFastifyApplication> {
   app.enableCors({
     origin: env.PUBLIC_APP_URL,
     credentials: true,
+    // @fastify/cors solo permite GET, HEAD y POST por defecto.
+    methods: ["GET", "HEAD", "POST", "PUT", "PATCH", "DELETE"],
     exposedHeaders: ["x-anon-token-rotated", "set-auth-token"],
   });
   app.useWebSocketAdapter(new RedisIoAdapter(app, app.get<Redis>(REDIS), env.PUBLIC_APP_URL));

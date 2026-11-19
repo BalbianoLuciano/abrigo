@@ -90,3 +90,26 @@ describe("auth de ayudantes y admin", () => {
     expect((await call(h, "GET", "/v1/helper/alerts", { bearer: again.token })).status).toBe(403);
   });
 });
+
+describe("CORS", () => {
+  let h: Harness;
+  beforeAll(async () => {
+    h = await startHarness();
+  });
+  afterAll(() => h?.close());
+
+  it("permite los métodos que usa la PWA", async () => {
+    for (const method of ["PATCH", "PUT", "DELETE"]) {
+      const res = await fetch(`${h.baseUrl}/v1/helper/availability`, {
+        method: "OPTIONS",
+        headers: {
+          origin: h.env.PUBLIC_APP_URL,
+          "access-control-request-method": method,
+          "access-control-request-headers": "authorization,content-type",
+        },
+      });
+      expect(res.status).toBeLessThan(300);
+      expect(res.headers.get("access-control-allow-methods")).toContain(method);
+    }
+  });
+});
