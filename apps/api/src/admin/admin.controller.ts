@@ -16,6 +16,7 @@ import { Roles, StaffGuard } from "../auth/guards.js";
 import { CurrentStaff, type StaffPrincipal } from "../common/principal.js";
 import { ZodPipe } from "../common/zod-pipe.js";
 import { AdminService } from "./admin.service.js";
+import { MetricsService } from "./metrics.service.js";
 
 const statusQuery = z.object({
   status: z.enum(["pending", "approved", "rejected", "suspended"]).default("pending"),
@@ -55,5 +56,19 @@ export class AdminController {
   @HttpCode(204)
   async reactivate(@CurrentStaff() staff: StaffPrincipal, @Param("id", ParseUUIDPipe) id: string) {
     await this.admin.reactivate(staff.userId, id);
+  }
+}
+
+const metricsQuery = z.object({ days: z.coerce.number().int().min(1).max(365).default(30) });
+
+@Controller("v1/admin/metrics")
+@UseGuards(StaffGuard)
+@Roles("admin")
+export class AdminMetricsController {
+  constructor(@Inject(MetricsService) private readonly metrics: MetricsService) {}
+
+  @Get()
+  summary(@Query(new ZodPipe(metricsQuery)) q: z.infer<typeof metricsQuery>) {
+    return this.metrics.summary(q.days);
   }
 }
