@@ -14,9 +14,13 @@ import { ConversationsService } from "./conversations/conversations.service.js";
 import { createKeyRing, type KeyRing } from "./crypto/key-ring.js";
 import { MessageCipher } from "./crypto/message-cipher.js";
 import { HelpersService } from "./helpers/helpers.service.js";
+import { HelperSettingsService } from "./helpers/helper-settings.service.js";
+import { MetricsService } from "./admin/metrics.service.js";
 import { InfraModule } from "./infra/infra.module.js";
 import { AUTH, DB, ENV, KEY_RING } from "./infra/tokens.js";
+import { EscalationService } from "./alerts/escalation.service.js";
 import { FanoutService } from "./notifications/fanout.service.js";
+import { TelegramService } from "./notifications/telegram.service.js";
 import { MailerService } from "./notifications/mailer.service.js";
 import { PushService } from "./notifications/push.service.js";
 import { RealtimeService } from "./realtime/realtime.service.js";
@@ -31,10 +35,14 @@ const services = [
   AnonService,
   ConversationsService,
   HelpersService,
+  HelperSettingsService,
+  MetricsService,
   AdminService,
   PushService,
   MailerService,
+  TelegramService,
   FanoutService,
+  EscalationService,
   StaffSessionResolver,
   StaffGuard,
   AnonGuard,

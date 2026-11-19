@@ -23,4 +23,6 @@ export interface AlertUpdateEvent {
   status: AlertStatus;
   conversationId?: string | null;
   reason?: string | null;
+  /** Novedades del escalado para explicarle a la persona qué está pasando. */
+  escalation?: { level: number; widenedGender?: boolean; stillSearching?: boolean };
 }

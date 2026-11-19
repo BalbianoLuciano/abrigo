@@ -1,3 +1,4 @@
+import { ESCALATION } from "@abrigo/shared";
 import {
   alertClaims,
   alerts,
@@ -43,7 +44,11 @@ export class LifecycleService {
           code: "specialty",
         });
       }
-      if (alert.helperGenderPref === "woman" && helper.gender !== "woman") {
+      if (
+        alert.helperGenderPref === "woman" &&
+        helper.gender !== "woman" &&
+        alert.escalationLevel < ESCALATION.ignoreGenderFromLevel
+      ) {
         throw new ConflictException({
           message: "La persona prefirió que le escriba una mujer",
           code: "gender_pref",
@@ -83,7 +88,15 @@ export class LifecycleService {
           code: "already_claimed",
         });
       }
-      const [claim] = await tx.insert(alertClaims).values({ alertId, helperId }).returning();
+      const [claim] = await tx
+        .insert(alertClaims)
+        .values({
+          alertId,
+          helperId,
+          escalationLevel: claimed.escalationLevel,
+          waitMs: Math.max(0, Date.now() - claimed.roundStartedAt.getTime()),
+        })
+        .returning();
       const [conversation] = await tx
         .insert(conversations)
         .values({
@@ -107,6 +120,7 @@ export class LifecycleService {
     });
 
     await this.timers.scheduleClaimTimeout(alertId, result.claim.id);
+    await this.timers.cancelEscalation(alertId, result.alert.round);
     this.realtime.alertUpdate(result.alert.anonSessionId, {
       alertId,
       status: "claimed",
@@ -172,7 +186,8 @@ export class LifecycleService {
         .set({
           status: "open",
           claimedAt: null,
-          escalationLevel: 0,
+          escalationLevel: sql`CASE WHEN ${alerts.dangerNow} = 'no' THEN 0 ELSE 1 END`,
+          roundStartedAt: new Date(),
           round: sql`${alerts.round} + 1`,
         })
         .where(and(eq(alerts.id, conv.alertId), inArray(alerts.status, ["claimed", "active"])))
@@ -202,8 +217,7 @@ export class LifecycleService {
         status: "open",
         reason,
       });
-      await this.timers.enqueueFanout(alert.id, alert.round);
-      await this.timers.scheduleExpiry(alert.id, alert.round);
+      await this.timers.startRound(alert);
       this.realtime.alertListChanged();
     }
     return true;

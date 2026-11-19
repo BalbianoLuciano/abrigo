@@ -1,3 +1,4 @@
+import { ESCALATION } from "@abrigo/shared";
 import { Inject, Injectable } from "@nestjs/common";
 import type { Env } from "../config/env.js";
 import { jobIds, type Queues } from "../infra/queues.js";
@@ -53,11 +54,43 @@ export class AlertTimersService {
     );
   }
 
-  async enqueueFanout(alertId: string, round: number) {
+  async enqueueFanout(alertId: string, round: number, level: number) {
     await this.queues.notifications.add(
       "alert-fanout",
-      { kind: "alert-fanout", alertId },
-      { jobId: `${jobIds.fanout(alertId)}_${round}` },
+      { kind: "alert-fanout", alertId, level },
+      { jobId: jobIds.fanout(alertId, round, level) },
+    );
+  }
+
+  /**
+   * Arranca una vuelta: aviso del nivel inicial y escalados programados para
+   * los siguientes, con demoras contadas desde `startedAt`.
+   */
+  async startRound(alert: {
+    id: string;
+    round: number;
+    escalationLevel: number;
+    roundStartedAt: Date;
+  }) {
+    await this.enqueueFanout(alert.id, alert.round, alert.escalationLevel);
+    const elapsed = Date.now() - alert.roundStartedAt.getTime();
+    for (let level = alert.escalationLevel + 1; level <= ESCALATION.maxLevel; level++) {
+      const delay = Math.max(0, this.env.ESCALATION_DELAYS_MS[level - 1]! - elapsed);
+      await this.queues.alertTimers.add(
+        "alert-escalate",
+        { kind: "alert-escalate", alertId: alert.id, round: alert.round, level },
+        { delay, jobId: jobIds.escalate(alert.id, alert.round, level) },
+      );
+    }
+    await this.scheduleExpiry(alert.id, alert.round);
+  }
+
+  /** Al tomarse la alerta, los escalados pendientes de esa vuelta ya no corren. */
+  async cancelEscalation(alertId: string, round: number) {
+    await Promise.all(
+      Array.from({ length: ESCALATION.maxLevel }, (_, i) =>
+        this.queues.alertTimers.remove(jobIds.escalate(alertId, round, i + 1)),
+      ),
     );
   }
 }

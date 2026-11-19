@@ -21,7 +21,6 @@ import {
   type StaffPrincipal,
 } from "../common/principal.js";
 import { ZodPipe } from "../common/zod-pipe.js";
-import { HelpersService } from "../helpers/helpers.service.js";
 import { AlertsService } from "./alerts.service.js";
 import { LifecycleService } from "./lifecycle.service.js";
 
@@ -65,13 +64,11 @@ export class HelperAlertsController {
   constructor(
     @Inject(AlertsService) private readonly alerts: AlertsService,
     @Inject(LifecycleService) private readonly lifecycle: LifecycleService,
-    @Inject(HelpersService) private readonly helpers: HelpersService,
   ) {}
 
   @Get()
   async list(@CurrentStaff() staff: StaffPrincipal) {
-    const profile = await this.helpers.profileForClaims(staff.helperId!);
-    const rows = await this.alerts.listOpenFor(profile);
+    const rows = await this.alerts.listOpenFor(staff.helperId!);
     return { alerts: rows.map((r) => ({ ...r, createdAt: r.createdAt.toISOString() })) };
   }
 

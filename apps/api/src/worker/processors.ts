@@ -3,6 +3,7 @@ import { Inject, Injectable, Logger, type OnModuleDestroy } from "@nestjs/common
 import { Worker, type Job } from "bullmq";
 import { eq } from "@abrigo/db";
 import type { Redis } from "ioredis";
+import { EscalationService } from "../alerts/escalation.service.js";
 import { LifecycleService } from "../alerts/lifecycle.service.js";
 import type { Env } from "../config/env.js";
 import { ConversationsService } from "../conversations/conversations.service.js";
@@ -24,6 +25,7 @@ export class Processors implements OnModuleDestroy {
     @Inject(LifecycleService) private readonly lifecycle: LifecycleService,
     @Inject(ConversationsService) private readonly conversations: ConversationsService,
     @Inject(FanoutService) private readonly fanout: FanoutService,
+    @Inject(EscalationService) private readonly escalation: EscalationService,
   ) {}
 
   start() {
@@ -68,6 +70,9 @@ export class Processors implements OnModuleDestroy {
       case "alert-expiry":
         await this.lifecycle.closeOpenAlert(data.alertId, "no_response");
         return;
+      case "alert-escalate":
+        await this.escalation.escalate(data.alertId, data.round, data.level);
+        return;
       case "conversation-inactivity":
         await this.conversations.checkInactivity(
           data.conversationId,
@@ -78,6 +83,7 @@ export class Processors implements OnModuleDestroy {
   }
 
   async onNotification(job: Job<NotificationJob>) {
-    if (job.data.kind === "alert-fanout") await this.fanout.fanout(job.data.alertId);
+    if (job.data.kind === "alert-fanout")
+      await this.fanout.fanout(job.data.alertId, job.data.level);
   }
 }

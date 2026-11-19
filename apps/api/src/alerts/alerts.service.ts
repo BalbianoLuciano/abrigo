@@ -1,7 +1,8 @@
-import { alertClaims, alerts, conversations, type Database } from "@abrigo/db";
-import type { AlertPath, CreateAlertInput } from "@abrigo/shared";
+import { alerts, conversations, helperAvailability, helpers, type Database } from "@abrigo/db";
+import { initialEscalationLevel, type CreateAlertInput } from "@abrigo/shared";
 import { ConflictException, Inject, Injectable, NotFoundException } from "@nestjs/common";
-import { and, asc, desc, eq, inArray, isNull, notExists, or, sql } from "@abrigo/db";
+import { and, asc, desc, eq, inArray, isNull, sql } from "@abrigo/db";
+import { eligible } from "../proximity/eligibility.js";
 import { AbuseService } from "../common/abuse.service.js";
 import { AuditService } from "../audit/audit.service.js";
 import type { Env } from "../config/env.js";
@@ -9,6 +10,7 @@ import { DB, ENV } from "../infra/tokens.js";
 import { RealtimeService } from "../realtime/realtime.service.js";
 import { AlertTimersService } from "./alert-timers.service.js";
 import { LifecycleService } from "./lifecycle.service.js";
+import { assertCoarseCell, cellCenterSql } from "../proximity/h3.js";
 
 const LIVE_STATUSES = ["open", "claimed", "active"] as const;
 
@@ -26,6 +28,7 @@ export class AlertsService {
 
   async create(sessionId: string, input: CreateAlertInput, ip: string, captcha?: string) {
     await this.abuse.verifyCaptcha(captcha, ip);
+    if (input.h3Cell) assertCoarseCell(input.h3Cell);
 
     const [live] = await this.db
       .select({ id: alerts.id })
@@ -60,6 +63,8 @@ export class AlertsService {
         safeTimeToWrite: input.path === "violence" ? (input.safeTimeToWrite ?? null) : null,
         helperGenderPref: input.path === "violence" ? (input.helperGenderPref ?? null) : null,
         h3Cell: input.h3Cell ?? null,
+        cellCenter: input.h3Cell ? cellCenterSql(input.h3Cell) : null,
+        escalationLevel: initialEscalationLevel(input.dangerNow),
         regionCode: input.regionCode ?? null,
         crisisLinesShownAt: input.crisisLinesShownAt ? new Date(input.crisisLinesShownAt) : null,
       })
@@ -71,8 +76,7 @@ export class AlertsService {
       targetId: alert!.id,
       metadata: { path: input.path, dangerNow: input.dangerNow },
     });
-    await this.timers.enqueueFanout(alert!.id, 0);
-    await this.timers.scheduleExpiry(alert!.id, 0);
+    await this.timers.startRound(alert!);
     this.realtime.alertListChanged();
     return this.toPublic(alert!, null);
   }
@@ -119,43 +123,36 @@ export class AlertsService {
     await this.lifecycle.releaseAndReopen(conv.id, "reassigned", "anon");
   }
 
-  /** Alertas abiertas que este ayudante puede tomar. */
-  async listOpenFor(helper: { id: string; specialties: AlertPath[]; gender: string | null }) {
-    if (!helper.specialties.length) return [];
-    const rows = await this.db
-      .select({
-        id: alerts.id,
-        path: alerts.path,
-        dangerNow: alerts.dangerNow,
-        safeTimeToWrite: alerts.safeTimeToWrite,
-        helperGenderPref: alerts.helperGenderPref,
-        regionCode: alerts.regionCode,
-        h3Cell: alerts.h3Cell,
-        language: alerts.language,
-        createdAt: alerts.createdAt,
-      })
-      .from(alerts)
-      .where(
-        and(
-          eq(alerts.status, "open"),
-          inArray(alerts.path, helper.specialties),
-          helper.gender === "woman"
-            ? undefined
-            : or(isNull(alerts.helperGenderPref), eq(alerts.helperGenderPref, "any")),
-          notExists(
-            this.db
-              .select({ one: sql`1` })
-              .from(alertClaims)
-              .where(and(eq(alertClaims.alertId, alerts.id), eq(alertClaims.helperId, helper.id))),
-          ),
-        ),
-      )
-      // Primero quienes indicaron peligro, después las más antiguas.
-      .orderBy(
-        sql`CASE ${alerts.dangerNow} WHEN 'yes' THEN 0 WHEN 'unsure' THEN 1 ELSE 2 END`,
-        asc(alerts.createdAt),
-      );
-    return rows;
+  /**
+   * Alertas abiertas que este ayudante puede ver ahora: las mismas reglas de
+   * cercanía que el aviso, según el nivel de escalado actual de cada una. Nunca
+   * se expone nada más preciso que la celda H3.
+   */
+  async listOpenFor(helperId: string) {
+    return (
+      this.db
+        .select({
+          id: alerts.id,
+          path: alerts.path,
+          dangerNow: alerts.dangerNow,
+          safeTimeToWrite: alerts.safeTimeToWrite,
+          helperGenderPref: alerts.helperGenderPref,
+          regionCode: alerts.regionCode,
+          h3Cell: alerts.h3Cell,
+          language: alerts.language,
+          escalationLevel: alerts.escalationLevel,
+          createdAt: alerts.createdAt,
+        })
+        .from(alerts)
+        .innerJoin(helpers, eq(helpers.id, helperId))
+        .innerJoin(helperAvailability, eq(helperAvailability.helperId, helpers.id))
+        .where(and(eq(alerts.status, "open"), eligible(sql`${alerts.escalationLevel}`)))
+        // Primero quienes indicaron peligro, después las más antiguas.
+        .orderBy(
+          sql`CASE ${alerts.dangerNow} WHEN 'yes' THEN 0 WHEN 'unsure' THEN 1 ELSE 2 END`,
+          asc(alerts.createdAt),
+        )
+    );
   }
 
   private async ownAlert(sessionId: string, alertId: string) {
@@ -183,6 +180,9 @@ export class AlertsService {
       path: alert.path,
       status: alert.status,
       dangerNow: alert.dangerNow,
+      // Para explicarle a la persona en qué etapa de la búsqueda estamos (SDD 03).
+      escalationLevel: alert.escalationLevel,
+      helperGenderPref: alert.helperGenderPref,
       createdAt: alert.createdAt.toISOString(),
       closeReason: alert.closeReason,
       conversationId,

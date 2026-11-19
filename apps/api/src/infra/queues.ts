@@ -9,9 +9,10 @@ export const QUEUE_NAMES = {
 export type AlertTimerJob =
   | { kind: "claim-timeout"; alertId: string; claimId: string }
   | { kind: "alert-expiry"; alertId: string }
-  | { kind: "conversation-inactivity"; conversationId: string };
+  | { kind: "conversation-inactivity"; conversationId: string }
+  | { kind: "alert-escalate"; alertId: string; round: number; level: number };
 
-export type NotificationJob = { kind: "alert-fanout"; alertId: string };
+export type NotificationJob = { kind: "alert-fanout"; alertId: string; level: number };
 
 export interface Queues {
   alertTimers: Queue<AlertTimerJob>;
@@ -24,7 +25,9 @@ export const jobIds = {
   claimTimeout: (claimId: string) => `claim-timeout_${claimId}`,
   alertExpiry: (alertId: string) => `alert-expiry_${alertId}`,
   inactivity: (conversationId: string, at: number) => `inactivity_${conversationId}_${at}`,
-  fanout: (alertId: string) => `fanout_${alertId}`,
+  fanout: (alertId: string, round: number, level: number) => `fanout_${alertId}_${round}_${level}`,
+  escalate: (alertId: string, round: number, level: number) =>
+    `escalate_${alertId}_${round}_${level}`,
 };
 
 const defaultJobOptions = {

@@ -37,6 +37,19 @@ const envSchema = z.object({
   CONVERSATION_INACTIVITY_MS: ms(24 * 60 * 60_000),
   ANON_TOKEN_ROTATION_MS: ms(24 * 60 * 60_000),
   ANON_SESSION_MAX_IDLE_MS: ms(30 * 24 * 60 * 60_000),
+  /** Demoras de los niveles 1..4 de escalado, desde el inicio de la vuelta (SDD 03). */
+  ESCALATION_DELAYS_MS: z
+    .string()
+    .default("180000,360000,600000,1200000")
+    .transform((v) => v.split(",").map((n) => Number(n.trim())))
+    .pipe(z.array(z.number().int().positive()).length(4)),
+
+  /** Bot de Telegram (opcional). */
+  TELEGRAM_BOT_TOKEN: z.string().optional(),
+  TELEGRAM_BOT_USERNAME: z.string().optional(),
+  TELEGRAM_WEBHOOK_SECRET: z.string().min(16).optional(),
+  TELEGRAM_API_BASE: z.string().url().default("https://api.telegram.org"),
+
   MAX_ALERTS_PER_SESSION_24H: z.coerce.number().int().positive().default(3),
   MAX_ALERTS_PER_IP_24H: z.coerce.number().int().positive().default(10),
   MAX_REGISTRATIONS_PER_IP_24H: z.coerce.number().int().positive().default(5),
