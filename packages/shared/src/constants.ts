@@ -62,3 +62,24 @@ export const REPORT_REASONS = [
   "spam",
   "other",
 ] as const;
+
+/**
+ * Escalado progresivo (SDD 03). Cada nivel suma destinatarios a los anteriores.
+ * Las demoras corren desde el inicio de la vuelta (creación o reapertura).
+ */
+export const ESCALATION = {
+  /** Nivel 1: radio alrededor del centro de la celda. */
+  nearbyRadiusM: 50_000,
+  /** Nivel 2 sin provincia conocida (solo celda): radio que aproxima "la provincia". */
+  provinceFallbackRadiusM: 200_000,
+  /** Nivel desde el que se ignora la preferencia de género. */
+  ignoreGenderFromLevel: 3,
+  /** Nivel en el que se avisa a la persona y al equipo. */
+  stillSearchingLevel: 4,
+  maxLevel: 4,
+} as const;
+
+/** Nivel inicial: quien indicó peligro arranca en 1. */
+export function initialEscalationLevel(dangerNow: DangerNow): number {
+  return dangerNow === "no" ? 0 : 1;
+}

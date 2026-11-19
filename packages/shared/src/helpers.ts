@@ -7,7 +7,7 @@ import {
   REPORT_REASONS,
 } from "./constants.js";
 
-const coverageSchema = z.object({
+export const coverageSchema = z.object({
   lat: z.number().min(-56).max(-21),
   lng: z.number().min(-74).max(-53),
   radiusKm: z.number().min(2).max(500),
@@ -53,6 +53,30 @@ export const helperRegistrationSchema = z
     }
   });
 export type HelperRegistrationInput = z.infer<typeof helperRegistrationSchema>;
+
+/** Zona de cobertura: un círculo (se guarda como polígono) y las provincias que conoce. */
+export const coverageUpdateSchema = z.object({
+  circle: coverageSchema.nullable(),
+  regionCodes: z.array(z.string().regex(/^AR-[A-Z]$/)).max(24),
+  acceptsRemoteAnywhere: z.boolean(),
+});
+export type CoverageUpdateInput = z.infer<typeof coverageUpdateSchema>;
+
+const minuteOfDay = z.number().int().min(0).max(1439);
+
+export const notificationPrefsSchema = z
+  .object({
+    webPush: z.boolean(),
+    email: z.boolean(),
+    telegram: z.boolean(),
+    quietStartMin: minuteOfDay.nullable(),
+    quietEndMin: minuteOfDay.nullable(),
+  })
+  .refine((v) => (v.quietStartMin === null) === (v.quietEndMin === null), {
+    message: "Indicá inicio y fin del horario de silencio",
+    path: ["quietEndMin"],
+  });
+export type NotificationPrefsInput = z.infer<typeof notificationPrefsSchema>;
 
 export const availabilitySchema = z.object({
   isOnCall: z.boolean(),
