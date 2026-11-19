@@ -43,3 +43,9 @@ variable "github_repository" {
   type        = string
   description = "owner/repo, para Workload Identity Federation desde GitHub Actions."
 }
+
+variable "telegram_bot_username" {
+  type        = string
+  default     = "AbrigoAvisosBot"
+  description = "Usuario del bot de Telegram (sin @)."
+}

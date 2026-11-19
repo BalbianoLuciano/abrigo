@@ -34,6 +34,7 @@ locals {
     MESSAGE_KEY_CURRENT_VERSION = "1"
     EMAIL_FROM                  = var.email_from
     VAPID_SUBJECT               = "mailto:hola@${var.app_domain}"
+    TELEGRAM_BOT_USERNAME       = var.telegram_bot_username
   }
 }
 

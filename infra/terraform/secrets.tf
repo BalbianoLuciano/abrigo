@@ -12,8 +12,11 @@ locals {
     REDIS_CA_CERT      = google_redis_instance.main.server_ca_certs[0].cert
     BETTER_AUTH_SECRET = random_password.auth_secret.result
   }
-  # Valores que provee el equipo: claves envueltas por KMS, Turnstile, VAPID, SMTP.
-  manual_secrets = ["MESSAGE_KEYS", "TURNSTILE_SECRET_KEY", "VAPID_PUBLIC_KEY", "VAPID_PRIVATE_KEY", "SMTP_URL"]
+  # Valores que provee el equipo: claves envueltas por KMS, Turnstile, VAPID, SMTP, Telegram.
+  manual_secrets = [
+    "MESSAGE_KEYS", "TURNSTILE_SECRET_KEY", "VAPID_PUBLIC_KEY", "VAPID_PRIVATE_KEY", "SMTP_URL",
+    "TELEGRAM_BOT_TOKEN", "TELEGRAM_WEBHOOK_SECRET",
+  ]
   all_secrets    = concat(keys(local.generated_secrets), local.manual_secrets)
 }
 

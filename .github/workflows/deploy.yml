@@ -58,6 +58,7 @@ jobs:
         env:
           EXPO_PUBLIC_API_URL: ${{ vars.PUBLIC_API_URL }}
           EXPO_PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.TURNSTILE_SITE_KEY }}
+          EXPO_PUBLIC_GOOGLE_MAPS_KEY: ${{ vars.GOOGLE_MAPS_KEY }}
         run: |
           pnpm install --frozen-lockfile
           pnpm turbo run build --filter=@abrigo/mobile
