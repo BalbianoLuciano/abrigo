@@ -22,6 +22,13 @@
       "when": 1795008846416,
       "tag": "0002_audit_immutable",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1795117754111,
+      "tag": "0003_proximity",
+      "breakpoints": true
     }
   ]
 }

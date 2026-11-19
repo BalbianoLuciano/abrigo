@@ -22,3 +22,4 @@ CREATE TRIGGER audit_log_no_update_delete
   FOR EACH ROW EXECUTE FUNCTION audit_log_immutable();
 SQL
 ls migrations
+# Desde acá las migraciones son incrementales (0003+): no regenerar más desde cero.

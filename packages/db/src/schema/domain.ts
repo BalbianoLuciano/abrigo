@@ -27,6 +27,11 @@ const geographyPolygon = customType<{ data: string; driverData: string }>({
   dataType: () => "geography(Polygon, 4326)",
 });
 
+/** geography(Point, 4326): centro de la celda H3. Nunca sale de la API. */
+const geographyPoint = customType<{ data: string; driverData: string }>({
+  dataType: () => "geography(Point, 4326)",
+});
+
 const bytea = customType<{ data: Buffer; driverData: Buffer }>({
   dataType: () => "bytea",
 });
@@ -96,6 +101,11 @@ export const helpers = pgTable(
       .default(sql`ARRAY['es']::text[]`),
     bioShort: text("bio_short"),
     coverage: geographyPolygon("coverage"),
+    /** Provincias cuyos recursos conoce (ISO 3166-2:AR). */
+    regionCodes: text("region_codes")
+      .array()
+      .notNull()
+      .default(sql`ARRAY[]::text[]`),
     acceptsRemoteAnywhere: boolean("accepts_remote_anywhere").notNull().default(true),
     maxConcurrent: smallint("max_concurrent").notNull().default(2),
     status: helperStatusEnum("status").notNull().default("pending"),
@@ -107,8 +117,34 @@ export const helpers = pgTable(
   (t) => [
     index("helpers_status_idx").on(t.status),
     index("helpers_coverage_gist").using("gist", t.coverage),
+    index("helpers_region_codes_gin").using("gin", t.regionCodes),
   ],
 );
+
+/** Canales y horario de silencio de cada ayudante. */
+export const helperNotificationPrefs = pgTable("helper_notification_prefs", {
+  helperId: uuid("helper_id")
+    .primaryKey()
+    .references(() => helpers.id, { onDelete: "cascade" }),
+  webPush: boolean("web_push").notNull().default(true),
+  email: boolean("email").notNull().default(true),
+  telegram: boolean("telegram").notNull().default(true),
+  /** Minutos desde la medianoche, hora de Argentina. Ambos nulos = sin silencio. */
+  quietStartMin: smallint("quiet_start_min"),
+  quietEndMin: smallint("quiet_end_min"),
+  telegramChatId: text("telegram_chat_id"),
+  telegramLinkedAt: ts("telegram_linked_at"),
+});
+
+/** Códigos de un solo uso para vincular Telegram (solo se guarda el hash). */
+export const telegramLinkCodes = pgTable("telegram_link_codes", {
+  codeHash: text("code_hash").primaryKey(),
+  helperId: uuid("helper_id")
+    .notNull()
+    .references(() => helpers.id, { onDelete: "cascade" }),
+  expiresAt: ts("expires_at").notNull(),
+  usedAt: ts("used_at"),
+});
 
 export const helperAvailability = pgTable("helper_availability", {
   helperId: uuid("helper_id")
@@ -148,10 +184,13 @@ export const alerts = pgTable(
     safeTimeToWrite: safeTimeEnum("safe_time_to_write"),
     helperGenderPref: helperGenderPrefEnum("helper_gender_pref"),
     h3Cell: text("h3_cell"),
+    cellCenter: geographyPoint("cell_center"),
     regionCode: text("region_code"),
     language: text("language").notNull().default("es"),
     status: alertStatusEnum("status").notNull().default("open"),
     escalationLevel: smallint("escalation_level").notNull().default(0),
+    /** Momento desde el que corren los tiempos de escalado (creación o reapertura). */
+    roundStartedAt: ts("round_started_at").notNull().defaultNow(),
     /** Cuántas veces la persona pidió otra persona (cada vuelta vuelve a avisar). */
     round: smallint("round").notNull().default(0),
     crisisLinesShownAt: ts("crisis_lines_shown_at"),
@@ -166,6 +205,7 @@ export const alerts = pgTable(
       .on(t.status)
       .where(sql`${t.status} IN ('open', 'claimed')`),
     index("alerts_session_idx").on(t.anonSessionId),
+    index("alerts_cell_center_gist").using("gist", t.cellCenter),
   ],
 );
 
@@ -180,6 +220,10 @@ export const alertClaims = pgTable(
       .notNull()
       .references(() => helpers.id, { onDelete: "cascade" }),
     claimedAt: ts("claimed_at").notNull().defaultNow(),
+    /** Nivel de escalado en el que se tomó (métricas). */
+    escalationLevel: smallint("escalation_level").notNull().default(0),
+    /** Cuánto tardó en tomarse desde el inicio de la vuelta (métricas). */
+    waitMs: integer("wait_ms"),
     firstMessageAt: ts("first_message_at"),
     releasedAt: ts("released_at"),
     releaseReason: text("release_reason"),
