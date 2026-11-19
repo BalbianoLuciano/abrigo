@@ -1,5 +1,5 @@
 import { Module, type DynamicModule } from "@nestjs/common";
-import { AdminController } from "./admin/admin.controller.js";
+import { AdminController, AdminMetricsController } from "./admin/admin.controller.js";
 import { AlertsController, HelperAlertsController } from "./alerts/alerts.controller.js";
 import { AnonController } from "./anon/anon.controller.js";
 import type { Env } from "./config/env.js";
@@ -10,6 +10,10 @@ import {
 import { CoreModule } from "./core.module.js";
 import { HealthController } from "./health.controller.js";
 import { HelpersController } from "./helpers/helpers.controller.js";
+import {
+  HelperSettingsController,
+  TelegramWebhookController,
+} from "./helpers/helper-settings.controller.js";
 import { PushController } from "./notifications/push.controller.js";
 import { ChatGateway } from "./realtime/chat.gateway.js";
 
@@ -25,6 +29,9 @@ export class AppModule {
         AlertsController,
         HelperAlertsController,
         HelpersController,
+        HelperSettingsController,
+        TelegramWebhookController,
+        AdminMetricsController,
         AdminController,
         ConversationsController,
         HelperConversationsController,
