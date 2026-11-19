@@ -20,7 +20,15 @@ test("pedido de ayuda → aviso → tomar → chat → cierre", async ({ browser
   await helperLogin(hp, helper.email, helper.password, helper.secret);
   await expect(hp.getByText("Hola, Lucía")).toBeVisible();
   await hp.getByRole("button", { name: "Estoy de guardia" }).click();
-  await expect(hp.getByText("Estás de guardia.", { exact: false })).toBeVisible();
+  await expect(
+    hp.getByText("Estás de guardia. Te avisamos cuando alguien pida ayuda.", { exact: true }),
+  ).toBeVisible();
+
+  // Ayudante: marca las provincias que conoce (PUT a través de CORS).
+  await hp.getByRole("button", { name: "Tu zona" }).click();
+  await hp.getByRole("checkbox", { name: "Ciudad de Buenos Aires" }).click();
+  await hp.getByRole("button", { name: "Guardar mi zona" }).click();
+  await expect(hp.getByText("Marcá tu zona", { exact: false })).toHaveCount(0);
 
   // Persona: pide ayuda sin dar ningún dato.
   const personCtx = await browser.newContext();
